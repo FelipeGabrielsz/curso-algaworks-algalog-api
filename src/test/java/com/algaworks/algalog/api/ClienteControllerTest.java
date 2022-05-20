@@ -1,5 +1,6 @@
-package com.algaworks.algalog.api.controller;
+package com.algaworks.algalog.api;
 
+import com.algaworks.algalog.api.controller.ClienteController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
