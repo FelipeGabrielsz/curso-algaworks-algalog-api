@@ -1,5 +1,6 @@
 package com.algaworks.algalog.api.exceptionhander;
 
+import com.algaworks.algalog.domain.exception.NegocioException;
 import lombok.AllArgsConstructor;
 import org.aspectj.bridge.Message;
 import org.springframework.context.MessageSource;
@@ -11,6 +12,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -34,10 +36,10 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpStatus status, WebRequest request) {
         List<Problema.Campo> listCampos = new ArrayList<>();
         //Pegando todos os erros que foram atribuidos a essa requisição. getAllError retorna um list
-        for (ObjectError error : ex.getBindingResult().getAllErrors()){
+        for (ObjectError error : ex.getBindingResult().getAllErrors()) {
 
             //Fazendo cast do error. Só foi possivel porque o ObjectError é domesmo tipo que o error.
-            String nome = ((FieldError)error).getField();
+            String nome = ((FieldError) error).getField();
 
             //LocaleContextHolder.getLocale() pega o locale associoado a esse processamento
             String mensagem = messageSource.getMessage(error, LocaleContextHolder.getLocale());
@@ -52,5 +54,17 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         problema.setCampos(listCampos);
         //Metodo da ResponseEntityExceptionHandler
         return handleExceptionInternal(ex, problema, headers, status, request);
+    }
+
+    @ExceptionHandler(NegocioException.class)
+    public ResponseEntity<Object> handleNegocio(NegocioException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        Problema problema = new Problema();
+        problema.setStatus(status.value());
+        problema.setDataHora(LocalDateTime.now());
+        problema.setTitulo(ex.getMessage());    //Propria mensagem do exception
+
+        return handleExceptionInternal(ex, problema,new HttpHeaders(),status, request);
     }
 }

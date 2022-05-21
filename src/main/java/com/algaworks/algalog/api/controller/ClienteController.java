@@ -2,14 +2,12 @@ package com.algaworks.algalog.api.controller;
 
 import com.algaworks.algalog.domain.model.Cliente;
 import com.algaworks.algalog.domain.repository.ClienteRepository;
+import com.algaworks.algalog.domain.service.CatalagoClienteService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +17,7 @@ import java.util.Optional;
 @RequestMapping("/clientes")
 public class ClienteController {
 
+    private CatalagoClienteService catalagoClienteService;
     private ClienteRepository clienteRepository;
 
     @GetMapping()
@@ -40,7 +39,7 @@ public class ClienteController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Cliente adicionar(@Valid @RequestBody Cliente cliente){
-        return clienteRepository.save(cliente);
+        return catalagoClienteService.salvar(cliente);
     }
 
     @PutMapping("/{id}")
@@ -51,7 +50,7 @@ public class ClienteController {
         }
         //Setando o ID antes de atualizar, se nao fosse setado o mesmo iria criar um novo cliente
         cliente.setId(id);
-        clienteRepository.save(cliente);
+        catalagoClienteService.salvar(cliente);
 
         return ResponseEntity.ok(cliente);
     }
@@ -61,7 +60,7 @@ public class ClienteController {
         if(!clienteRepository.existsById(id)){
             return ResponseEntity.notFound().build();
         }
-        clienteRepository.deleteById(id);
+        catalagoClienteService.excluir(id);
 
         return ResponseEntity.noContent().build();
     }
